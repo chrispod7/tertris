@@ -3,10 +3,11 @@
 #include <algorithm>
 #include <array>
 #include <fstream>
+#include <optional>
 #include <sstream>
 
 Game::Game()
-    : window_(sf::VideoMode(620, 680), "Tetris"),
+    : window_(sf::VideoMode({620u, 680u}), "Tetris"),
       current_(Tetromino::T),
       next_(Tetromino::T),
       rng_(std::random_device{}()) {
@@ -31,47 +32,48 @@ Piece Game::randomPiece() {
 }
 
 void Game::handleEvents() {
-    sf::Event event{};
-    while (window_.pollEvent(event)) {
-        if (event.type == sf::Event::Closed) {
+    while (const std::optional event = window_.pollEvent()) {
+        if (event->is<sf::Event::Closed>()) {
             window_.close();
         }
-        if (event.type != sf::Event::KeyPressed) {
+        const auto* key = event->getIf<sf::Event::KeyPressed>();
+        if (key == nullptr) {
             continue;
         }
 
-        if (event.key.code == sf::Keyboard::Escape) {
+        using Key = sf::Keyboard::Key;
+        if (key->code == Key::Escape) {
             window_.close();
         }
 
         if (gameOver_) {
-            if (event.key.code == sf::Keyboard::R || event.key.code == sf::Keyboard::Enter) {
+            if (key->code == Key::R || key->code == Key::Enter) {
                 restart();
             }
             continue;
         }
 
-        switch (event.key.code) {
-            case sf::Keyboard::Left:
-            case sf::Keyboard::A:
+        switch (key->code) {
+            case Key::Left:
+            case Key::A:
                 tryMove(-1, 0);
                 break;
-            case sf::Keyboard::Right:
-            case sf::Keyboard::D:
+            case Key::Right:
+            case Key::D:
                 tryMove(1, 0);
                 break;
-            case sf::Keyboard::Down:
-            case sf::Keyboard::S:
+            case Key::Down:
+            case Key::S:
                 if (tryMove(0, 1)) {
                     ++score_;
                     updateWindowTitle();
                 }
                 break;
-            case sf::Keyboard::Up:
-            case sf::Keyboard::W:
+            case Key::Up:
+            case Key::W:
                 tryRotate();
                 break;
-            case sf::Keyboard::Space:
+            case Key::Space:
                 hardDrop();
                 break;
             default:
@@ -205,7 +207,7 @@ sf::Color Game::colorFor(int value) const {
 
 void Game::drawBlock(int gridX, int gridY, sf::Color color, float offsetX, float offsetY, float size) {
     sf::RectangleShape block(sf::Vector2f(size - 2.f, size - 2.f));
-    block.setPosition(offsetX + gridX * size + 1.f, offsetY + gridY * size + 1.f);
+    block.setPosition(sf::Vector2f(offsetX + gridX * size + 1.f, offsetY + gridY * size + 1.f));
     block.setFillColor(color);
     block.setOutlineThickness(1.f);
     block.setOutlineColor(sf::Color(255, 255, 255, 35));
@@ -214,7 +216,7 @@ void Game::drawBlock(int gridX, int gridY, sf::Color color, float offsetX, float
 
 void Game::drawBoard() {
     sf::RectangleShape border(sf::Vector2f(Board::Width * CellSize + 4.f, Board::Height * CellSize + 4.f));
-    border.setPosition(BoardOffsetX - 2.f, BoardOffsetY - 2.f);
+    border.setPosition(sf::Vector2f(BoardOffsetX - 2.f, BoardOffsetY - 2.f));
     border.setFillColor(sf::Color::Transparent);
     border.setOutlineThickness(2.f);
     border.setOutlineColor(sf::Color(120, 125, 145));
@@ -241,7 +243,7 @@ void Game::drawPreview() {
     const float previewY = 115.f;
 
     sf::RectangleShape panel(sf::Vector2f(165.f, 150.f));
-    panel.setPosition(previewX - 20.f, previewY - 25.f);
+    panel.setPosition(sf::Vector2f(previewX - 20.f, previewY - 25.f));
     panel.setFillColor(sf::Color(31, 34, 43));
     panel.setOutlineThickness(2.f);
     panel.setOutlineColor(sf::Color(90, 95, 110));
@@ -258,12 +260,12 @@ void Game::drawSidePanel() {
     // No external font file is needed. The numeric state is kept in the window title.
     // These bars give a quick visual indication of level and game-over state.
     sf::RectangleShape levelBar(sf::Vector2f(std::min(level_, 10) * 14.f, 16.f));
-    levelBar.setPosition(380.f, 330.f);
+    levelBar.setPosition(sf::Vector2f(380.f, 330.f));
     levelBar.setFillColor(sf::Color(110, 200, 255));
     window_.draw(levelBar);
 
     sf::RectangleShape levelOutline(sf::Vector2f(140.f, 16.f));
-    levelOutline.setPosition(380.f, 330.f);
+    levelOutline.setPosition(sf::Vector2f(380.f, 330.f));
     levelOutline.setFillColor(sf::Color::Transparent);
     levelOutline.setOutlineThickness(1.f);
     levelOutline.setOutlineColor(sf::Color(120, 125, 145));
@@ -271,7 +273,7 @@ void Game::drawSidePanel() {
 
     if (gameOver_) {
         sf::RectangleShape overlay(sf::Vector2f(Board::Width * CellSize, Board::Height * CellSize));
-        overlay.setPosition(BoardOffsetX, BoardOffsetY);
+        overlay.setPosition(sf::Vector2f(BoardOffsetX, BoardOffsetY));
         overlay.setFillColor(sf::Color(180, 40, 40, 85));
         window_.draw(overlay);
     }

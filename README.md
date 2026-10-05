@@ -52,7 +52,7 @@ README.md
 
 ## Build with CMake
 
-You need a C++17 compiler, CMake, and SFML 2.5+.
+You need a C++17 compiler, CMake, and SFML 3.x. (Ubuntu 26.04+ and Homebrew ship SFML 3; older Ubuntu releases ship SFML 2, which will not work.)
 
 ### Linux / Ubuntu / WSL
 
