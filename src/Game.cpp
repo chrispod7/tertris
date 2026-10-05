@@ -203,7 +203,7 @@ sf::Color Game::colorFor(int value) const {
     }
 }
 
-void Game::drawBlock(int gridX, int gridY, sf::Color color, float offsetX, float offsetY, float size) const {
+void Game::drawBlock(int gridX, int gridY, sf::Color color, float offsetX, float offsetY, float size) {
     sf::RectangleShape block(sf::Vector2f(size - 2.f, size - 2.f));
     block.setPosition(offsetX + gridX * size + 1.f, offsetY + gridY * size + 1.f);
     block.setFillColor(color);

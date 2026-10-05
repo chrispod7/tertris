@@ -44,7 +44,7 @@ private:
     void addScoreForLines(int cleared);
 
     sf::Color colorFor(int value) const;
-    void drawBlock(int gridX, int gridY, sf::Color color, float offsetX, float offsetY, float size = CellSize) const;
+    void drawBlock(int gridX, int gridY, sf::Color color, float offsetX, float offsetY, float size = CellSize);
     void drawBoard();
     void drawCurrentPiece();
     void drawPreview();
